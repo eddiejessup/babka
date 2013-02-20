@@ -29,7 +29,6 @@ class Word(Base, MyMixin):
     VOWS_I = ('ы', 'и')
     VOWS_O = ('о', 'е', 'ё', 'э')
     VOWS_U = ('у', 'ю')
-
     VOWS_HARD = ('а', 'э', 'ы', 'у', 'о')
     VOWS_SOFT = ('я', 'е', 'и', 'ю', 'ё')
     VOWELS = VOWS_HARD + VOWS_SOFT
@@ -117,3 +116,27 @@ class Noun(Word):
             s += ' (%s)' % self.g
         if self.indeclinable: s += ' indecl.'
         return '%s - %s' % (s.capitalize(), self.meaning.capitalize())
+
+class Adjective(Word):
+    id = Column(Integer, ForeignKey('word.id'), primary_key=True)
+    __mapper_args__ = {'polymorphic_identity': 'adjective'}
+
+class Adverb(Word):
+    id = Column(Integer, ForeignKey('word.id'), primary_key=True)
+    __mapper_args__ = {'polymorphic_identity': 'adverb'}
+
+class Verb(Word):
+    id = Column(Integer, ForeignKey('word.id'), primary_key=True)
+    aspect = Column(Enum('i', 'p'))
+    __mapper_args__ = {'polymorphic_identity': 'verb'}
+
+    def __init__(self, *args, aspect):
+        super().__init__(*args)
+        self.aspect = aspect
+
+word_map = {
+    'word': Word,
+    'noun': Noun,
+    'adjective': Adjective,
+    'verb': Verb,
+}
